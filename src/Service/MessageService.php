@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-define("EMPTY_ACCESS_TO_BE_COMPLETED", "RjU3NkM3NjUzMTM2NEE2MkE3NEQ0RjA5MzM2MzkzMEYtMDItQzpOS0JXbmtBQmowZWFNc2ZiUUJpNXZyY3NuQlBIcQ==");
+define("EMPTY_ACCESS_TO_BE_COMPLETED", "");
 
 class MessageService
 {
