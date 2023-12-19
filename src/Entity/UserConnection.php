@@ -26,6 +26,9 @@ class UserConnection
     #[ORM\Column(nullable: true)]
     private ?bool $suspect = null;
 
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $verificationCode = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +78,18 @@ class UserConnection
     public function setSuspect(?bool $suspect): static
     {
         $this->suspect = $suspect;
+
+        return $this;
+    }
+
+    public function getVerificationCode(): ?string
+    {
+        return $this->verificationCode;
+    }
+
+    public function setVerificationCode(?string $verificationCode): static
+    {
+        $this->verificationCode = $verificationCode;
 
         return $this;
     }

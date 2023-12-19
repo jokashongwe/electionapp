@@ -4,8 +4,7 @@
 	<link rel="stylesheet" href="{{ asset('app.css', constant('EasyCorp\\Bundle\\EasyAdminBundle\\Asset\\AssetPackage::PACKAGE_NAME')) }}">
 	<link rel="stylesheet" href="{{ asset('style.css') }}"/>
 {% endblock %}
-{% block body_class %}sc_body
-{% endblock %}
+{% block body_class %}sc_body{% endblock %}
 {% block wrapper_wrapper %}
 	<div class="container sc_otp_container">
 		<h3 style="text-align: center; margin-top: 1rem">Confirmation OTP</h3>
@@ -13,7 +12,17 @@
 			Vous allez recevoir un code de vérification d'identité<br/>
 			<a href="https://fr.wikipedia.org/wiki/Double_authentification">Tout savoir sur le second facteur</a>
 		</p>
-		<form>
+        {% if error_code %}
+            <p style="text-align:center" class="text-danger">
+                {% if error_code == "ERROR_EMPTY_OTP" %}
+                    Vous devez fournir le code de Confirmation
+                {% else %}
+                    Code invalide
+                {% endif %}
+            </p>
+        {% endif %}
+        
+		<form action="{{ path("app_second_factor") }}" method="POST">
 			<div class="form-group">
 				<div class="form-widget">
 					<input style="text-align: center; font-size: 1.3rem; height: auto" type="number" id="otp" name="otp" class="form-control" required="" autofocus="" placeholder="_ _ _ _ _ _">

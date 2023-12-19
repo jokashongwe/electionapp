@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Person;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -25,6 +26,16 @@ class AppFixtures extends Fixture
         $user->setCreatedAt(new \DateTimeImmutable());
         $password = $this->hasher->hashPassword($user, "admin");
         $user->setPassword($password);
+
+        $person = new Person();
+        $person->setFirstname("Administrateur");
+        $person->setLastname("Admin");
+        $person->setAddress("None");
+        $person->setPhone("+243810120658");
+        $person->setBarrau("-");
+        
+        $user->setPerson($person);
+        $manager->persist($person);
         $manager->persist($user);
         $manager->flush();
     }

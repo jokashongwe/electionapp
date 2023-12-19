@@ -2,6 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
+use App\Entity\UserConnection;
+use App\Repository\UserConnectionRepository;
+use App\Service\MessageService;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,11 +45,57 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/verification_code', name: 'app_second_factor')]
-    public function second_factor(Request $request)
+    public function second_factor(Request $request, ManagerRegistry $managerRegistry, UserConnectionRepository $userConnectionRepository)
     {
-        //$ea = ["i18n" => ["translationDomain" => "fr", "htmlLocale" => "fr", "textDirection" => "right"]];
+        /**
+         * Generate OTP
+         * Add user connection try in the journal
+         */
+        $user = $this->getUser();
+        if (is_null($user)) {
+            return $this->redirectToRoute("app_login");
+        }
+        $person = null;
+        if($user instanceof User){
+            $person  = $user->getPerson();
+        }
+        
+        if (is_null($person)) {
+            return $this->redirectToRoute("app_login");
+        }
+        if ($request->getMethod() == "POST") {
+            $otp = $request->get("otp");
+            $error_code = null;
+            if (is_null($otp)) {
+                $error_code = "ERROR_EMPTY_OTP";
+            }
+            $userConnection = $userConnectionRepository->findOneBy([
+                'owner' => $user 
+            ], ["id" => "DESC"]);
+            if ($userConnection->getVerificationCode() == $otp) return $this->redirectToRoute("admin");
+            $error_code = "ERROR_INVALID_OTP";
+            return $this->render("login/second_factor.html.twig", [
+                'ea' => null,
+                'error_code' => $error_code
+            ]);
+        }
+        $userConnection = new UserConnection();
+        $userConnection->setOwner($user);
+        $userConnection->setReason("CONNECTION_TRY");
+        $userConnection->setConnexionDate(new \DateTimeImmutable());
+        $verification_code = random_int(100000, 999999);
+        $userConnection->setVerificationCode($verification_code);
+        $manager = $managerRegistry->getManager();
+        $manager->persist($userConnection);
+        $manager->flush();
+        /**
+         * Send the OTP by SMS
+         */
+
+        MessageService::sendMessageByOrange("Votre code de vérification est: $verification_code. Si vous n'avez pas fait cette tentative de connexion veuillez ignorer ce message", $person->getPhone());
         return $this->render("login/second_factor.html.twig", [
-            'ea' => null
+            'ea' => null,
+            'error_code' => null
         ]);
     }
 }
