@@ -36,6 +36,9 @@ class Person
     #[ORM\OneToMany(mappedBy: 'person', targetEntity: Candidacy::class)]
     private Collection $candidacies;
 
+    #[ORM\Column(length: 20)]
+    private ?string $phone = null;
+
     public function __construct()
     {
         $this->candidacies = new ArrayCollection();
@@ -144,6 +147,18 @@ class Person
                 $candidacy->setPerson(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(string $phone): static
+    {
+        $this->phone = $phone;
 
         return $this;
     }
